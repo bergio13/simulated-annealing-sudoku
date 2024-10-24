@@ -1,5 +1,5 @@
 # Simulated Annealing applied to Sudoku Puzzles
-This work is based on the paper "Metaheuristics can solve sudoku puzzles" by Lewis R.
+This work is based on the paper "Metaheuristics can solve sudoku puzzles" by Lewis (2007).
 
 Taking inspiration from the paper, I decided to implement a Simulated Annealing algorithm that consistently succeeds in solving Sudoku puzzles.
 
