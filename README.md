@@ -1,4 +1,5 @@
 # Simulated Annealing applied to Sudoku Puzzles
+![alt text](https://github.com/bergio13/simulated-annealing-sudoku/blob/main/sudoku_solution.png)
 This work is based on the paper "Metaheuristics can solve sudoku puzzles" by Lewis (2007).
 
 Taking inspiration from the paper, I decided to implement a Simulated Annealing algorithm that consistently succeeds in solving Sudoku puzzles.
