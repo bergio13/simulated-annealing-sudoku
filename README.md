@@ -13,7 +13,7 @@ This project implements a **Simulated Annealing** (SA) algorithm to solve Sudoku
 The SA algorithm works by iteratively exploring the solution space and probabilistically allowing worse solutions to escape local minima. As the process progresses, the "temperature" parameter gradually decreases, refining the search. If a better solution isn't found within a set number of steps, a reheating mechanism is applied to help the search escape potential plateaus.
 
 <div  align="center">
-    <img src="https://github.com/bergio13/simulated-annealing-sudoku/blob/main/output.png" alt="Sudoku Board Example" style="width: 50%;" />
+    <img src="https://github.com/bergio13/simulated-annealing-sudoku/blob/main/output.png" alt="Sudoku Board Example" style="width: 60%;" />
 </div>
 
 ### File Descriptions
