@@ -4,7 +4,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Sudoku Solver</title>
-    <script src="https://pyodide-cdn2.iodide.io/v0.23.4/full/pyodide.js"></script>
+    <script src="https://cdn.jsdelivr.net/pyodide/v0.25.0/full/pyodide.js"></script>
     <style>
       body {
         font-family: Arial, sans-serif;
@@ -19,6 +19,7 @@
         height: 30px;
         text-align: center;
         border: 1px solid black;
+        position: relative;
       }
       input {
         width: 28px;
@@ -30,19 +31,44 @@
         margin-top: 10px;
         padding: 10px;
       }
+
+      /* Thicker lines for 3x3 grid separation */
+      td:nth-child(3n) {
+        border-right: 3px solid black;
+      }
+      tr:nth-child(3n) td {
+        border-bottom: 3px solid black;
+      }
+      td:first-child {
+        border-left: 3px solid black;
+      }
+      tr:first-child td {
+        border-top: 3px solid black;
+      }
     </style>
   </head>
   <body>
     <h1>Sudoku Solver</h1>
     <table id="sudoku-grid"></table>
     <button onclick="solveSudoku()">Solve</button>
+
     <script>
-      async function loadPyodideAndSolve() {
-        window.pyodide = await loadPyodide();
-        await pyodide.loadPackage("numpy");
-        await pyodide.runPythonAsync(await (await fetch("solver.py")).text());
+      let pyodideReady = false;
+
+      async function loadPyodideAndSetup() {
+        try {
+          window.pyodide = await loadPyodide();
+          await pyodide.loadPackage("numpy");
+          let response = await fetch("solver.py");
+          let pythonCode = await response.text();
+          await pyodide.runPythonAsync(pythonCode);
+          console.log("Pyodide loaded and solver script executed.");
+          pyodideReady = true;
+        } catch (error) {
+          console.error("Failed to load Pyodide or solver.py:", error);
+          alert("Failed to load Pyodide. Check the console for details.");
+        }
       }
-      loadPyodideAndSolve();
 
       function createGrid() {
         let table = document.getElementById("sudoku-grid");
@@ -60,8 +86,14 @@
         }
       }
       createGrid();
+      loadPyodideAndSetup();
 
       async function solveSudoku() {
+        if (!pyodideReady) {
+          alert("Pyodide is still loading. Please wait...");
+          return;
+        }
+
         let grid = [];
         for (let i = 0; i < 9; i++) {
           let row = [];
@@ -73,15 +105,24 @@
           }
           grid.push(row);
         }
-        let pyCode = `solve_sudoku(${JSON.stringify(grid)})`;
-        let result = await pyodide.runPythonAsync(pyCode);
-        let solvedGrid = JSON.parse(result);
-        for (let i = 0; i < 9; i++) {
-          for (let j = 0; j < 9; j++) {
-            document.querySelector(
-              `input[data-row='${i}'][data-col='${j}']`
-            ).value = solvedGrid[i][j];
+
+        try {
+          let pyCode = `solve_sudoku(${JSON.stringify(grid)})`;
+          let result = await pyodide.runPythonAsync(pyCode);
+          let solvedGrid = JSON.parse(result);
+
+          for (let i = 0; i < 9; i++) {
+            for (let j = 0; j < 9; j++) {
+              document.querySelector(
+                `input[data-row='${i}'][data-col='${j}']`
+              ).value = solvedGrid[i][j];
+            }
           }
+        } catch (error) {
+          console.error("Error solving Sudoku:", error);
+          alert(
+            "An error occurred while solving. Check the console for details."
+          );
         }
       }
     </script>
