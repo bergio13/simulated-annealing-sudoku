@@ -57,15 +57,31 @@
 
       async function loadPyodideAndSetup() {
         try {
+          // Load Pyodide
           window.pyodide = await loadPyodide();
           await pyodide.loadPackage("numpy");
-          let response = await fetch("solver.py");
-          let pythonCode = await response.text();
-          await pyodide.runPythonAsync(pythonCode);
+
+          // Replace these with the raw GitHub URLs of your Python files
+          let solverResponse = await fetch(
+            "https://raw.githubusercontent.com/bergio13/simulated-annealing-sudoku/main/solver.py"
+          );
+          let solverCode = await solverResponse.text();
+
+          let saResponse = await fetch(
+            "https://raw.githubusercontent.com/bergio13/simulated-annealing-sudoku/main/simulated_annealing.py"
+          );
+          let saCode = await saResponse.text();
+
+          // Run the simulated_annealing.py script first to load its modules
+          await pyodide.runPythonAsync(saCode);
+
+          // Then run the solver.py script
+          await pyodide.runPythonAsync(solverCode);
+
           console.log("Pyodide loaded and solver script executed.");
           pyodideReady = true;
         } catch (error) {
-          console.error("Failed to load Pyodide or solver.py:", error);
+          console.error("Failed to load Pyodide or the scripts:", error);
           alert("Failed to load Pyodide. Check the console for details.");
         }
       }
