@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Sudoku Solver</title>
+    <script src="https://pyodide-cdn2.iodide.io/v0.23.4/full/pyodide.js"></script>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        text-align: center;
+      }
+      table {
+        margin: 20px auto;
+        border-collapse: collapse;
+      }
+      td {
+        width: 30px;
+        height: 30px;
+        text-align: center;
+        border: 1px solid black;
+      }
+      input {
+        width: 28px;
+        height: 28px;
+        text-align: center;
+        border: none;
+      }
+      button {
+        margin-top: 10px;
+        padding: 10px;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Sudoku Solver</h1>
+    <table id="sudoku-grid"></table>
+    <button onclick="solveSudoku()">Solve</button>
+    <script>
+      async function loadPyodideAndSolve() {
+        window.pyodide = await loadPyodide();
+        await pyodide.loadPackage("numpy");
+        await pyodide.runPythonAsync(await (await fetch("solver.py")).text());
+      }
+      loadPyodideAndSolve();
+
+      function createGrid() {
+        let table = document.getElementById("sudoku-grid");
+        for (let i = 0; i < 9; i++) {
+          let row = table.insertRow();
+          for (let j = 0; j < 9; j++) {
+            let cell = row.insertCell();
+            let input = document.createElement("input");
+            input.type = "text";
+            input.maxLength = 1;
+            input.dataset.row = i;
+            input.dataset.col = j;
+            cell.appendChild(input);
+          }
+        }
+      }
+      createGrid();
+
+      async function solveSudoku() {
+        let grid = [];
+        for (let i = 0; i < 9; i++) {
+          let row = [];
+          for (let j = 0; j < 9; j++) {
+            let value = document.querySelector(
+              `input[data-row='${i}'][data-col='${j}']`
+            ).value;
+            row.push(value ? parseInt(value) : 0);
+          }
+          grid.push(row);
+        }
+        let pyCode = `solve_sudoku(${JSON.stringify(grid)})`;
+        let result = await pyodide.runPythonAsync(pyCode);
+        let solvedGrid = JSON.parse(result);
+        for (let i = 0; i < 9; i++) {
+          for (let j = 0; j < 9; j++) {
+            document.querySelector(
+              `input[data-row='${i}'][data-col='${j}']`
+            ).value = solvedGrid[i][j];
+          }
+        }
+      }
+    </script>
+  </body>
+</html>
